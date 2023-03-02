@@ -9,6 +9,6 @@ class Booking(base):
     group_size = Column(Integer)
     time = Column(Integer)
     date = Column(Date)
-    table_id = Column(Integer) #,ForeignKey("Table.id"))
-    user_id = Column(Integer) #,ForeignKey("User.id"))
+    table_id = Column(Integer,ForeignKey("Table.id"))
+    user_id = Column(Integer,ForeignKey("User.id"))
     note = Column(String)
