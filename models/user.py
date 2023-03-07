@@ -10,5 +10,5 @@ class User(base):
     password = Column(String)
     phone_number = Column(String)
     first_name = Column(String)
-    Last_name = Column(String)
+    last_name = Column(String)
    
