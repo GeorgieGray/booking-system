@@ -1,8 +1,12 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
 
-db = create_engine("postgresql://wwwxcqyh:TBnbC6bNJ81AUkt_xtPJX96yCyTWCe_9@kandula.db.elephantsql.com/wwwxcqyh")
+load_dotenv()
+DB_URL = os.getenv('DB_URL')
+db = create_engine(DB_URL)
 base = declarative_base()
 Session = sessionmaker(db)
 session = Session()

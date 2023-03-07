@@ -1,5 +1,6 @@
 greenlet==2.0.2
 jsonpickle==3.0.1
 psycopg2-binary==2.9.5
+python-dotenv==1.0.0
 SQLAlchemy==2.0.4
 typing_extensions==4.5.0
