@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Date, ForeignKey, String
+from sqlalchemy import Column, Integer, Date, ForeignKey, String, inspect
 from .table import Table
 from .user import User
 import os, sys
@@ -14,3 +14,7 @@ class Booking(base):
     table_id = Column(Integer,ForeignKey("tables.id"))
     user_id = Column(Integer,ForeignKey("users.id"))
     note = Column(String)
+
+    def toDict(self):
+        # https://stackoverflow.com/a/46180522
+        return { c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs }
