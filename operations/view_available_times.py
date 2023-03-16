@@ -1,4 +1,5 @@
 import os, sys, datetime, math
+from typing import Tuple, List
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from models.booking import Booking 
 from models.closure_day import ClosureDay
@@ -8,11 +9,13 @@ from models.booking import Booking
 from models.restaurant import Restaurant
 from db import session
 
-def view_available_times(restaurant_id: int, party_size: int, booking_day: datetime):
+
+def view_available_times(restaurant_id: int, group_size: int, booking_day: datetime):
     clean_date = datetime.datetime(year=booking_day.year, month = booking_day.month, day = booking_day.day)
     is_restaurant_closed = session.query(ClosureDay).filter_by(date=clean_date).count() >= 1
     if is_restaurant_closed == True: 
         return []
+
 
     day_of_week = booking_day.weekday()
     trading_day = session.query(TradingDay).filter_by(day=day_of_week, restaurant_id=restaurant_id).one()
@@ -22,8 +25,8 @@ def view_available_times(restaurant_id: int, party_size: int, booking_day: datet
 
     possible_tables = session.query(Table).\
         filter_by(restaurant_id=restaurant_id).\
-        filter(Table.min_seats <= party_size).\
-        filter(Table.max_seats >= party_size).all()
+        filter(Table.min_seats <= group_size).\
+        filter(Table.max_seats >= group_size).all()
 
     def pick_table_id(x: Table):
         return x.id
@@ -39,7 +42,7 @@ def view_available_times(restaurant_id: int, party_size: int, booking_day: datet
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
     hours_per_booking = math.ceil(restaurant.table_time_limit / 60)
 
-    available_table_and_time_list = []
+    available_table_and_time_list: List[Tuple[Table, int]] = []
 
     for time in range(trading_day.opening_time, trading_day.closing_time):
         for table in possible_tables:
@@ -57,7 +60,7 @@ def view_available_times(restaurant_id: int, party_size: int, booking_day: datet
                 if table_matches and (time_is_during_booking or new_booking_would_conflict):
                     break
             else:
-                available_table_and_time_list.append([table, time])
+                available_table_and_time_list.append((table, time))
 
     def get_time(x):
         return x[1]
@@ -70,4 +73,12 @@ def view_available_times(restaurant_id: int, party_size: int, booking_day: datet
     for x in available_times:
         print(f'{x}:00')
 
-    return list(available_times)
+    def get_time_and_table_json(pair: Tuple[Table, int]):
+        return (pair[1], pair[0].toDict())
+
+    available_time_table_table_jsons = list(map(get_time_and_table_json, available_table_and_time_list))
+
+    return {
+        "available_times": list(available_times),
+        "available_time_and_table_pairs": available_time_table_table_jsons
+    } 

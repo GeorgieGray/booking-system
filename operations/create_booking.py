@@ -7,3 +7,4 @@ def create_booking(group_size: int, table_id: int, time: int, date: datetime, us
     booking = Booking(group_size=group_size,table_id=table_id,time=time,date=date,user_id=user_id,note=note)
     session.add(booking)
     session.commit()
+    return booking

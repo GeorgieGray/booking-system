@@ -27,7 +27,7 @@ import datetime
 #     print(booking.id)
 # date = datetime.datetime(2023, 5, 17)
 today = datetime.datetime.today()
-view_available_times(restaurant_id=2, party_size=2, booking_day=today)
+view_available_times(restaurant_id=2, group_size=2, booking_day=today)
 # create_booking(table_id= 3, group_size= 2, time = 11, date = today, user_id = 1, note = "lol")
 # create_booking(table_id= 4, group_size= 2, time = 11, date = today, user_id = 1, note = "lol")
 # create_booking(table_id= 5, group_size= 2, time = 11, date = today, user_id = 1, note = "lol")
