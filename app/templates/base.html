@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, minimum-scale=1" />
+    {% block head %}
+    {% endblock %}
 
     <title>Lettuce Eat</title>
 </head>
 <body>
-    <section>
+    <section style="margin-bottom: 20px;">
         <nav>
-            Hello world!
+            Lettuce Eat
         </nav>
     </section>
     <main>
         {% block content %}
         {% endblock %}
     </main>
+    {% block foot %}
+    {% endblock %}
 </body>

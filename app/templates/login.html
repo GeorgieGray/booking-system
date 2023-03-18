@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<div id="message">
+</div>
+<form id="login" style="display: flex; flex-direction: column; width: 300px;"> 
+    <label for="email">Email</label>
+    <input type="email" name="email" /> 
+    <label for="password">Password</label>
+    <input type="password" name="password" />
+    <label for="remember">Remember</label>
+    <input type="checkbox" name="remember" />
+    <input type="submit" value="Login" /> 
+</form>
+{% endblock %}
+
+{% block foot %}
+<script> 
+    document
+        .getElementById("login")
+        .addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const data = Object.fromEntries(new FormData(e.target).entries())
+
+            fetch('/api/user/login', {
+                method: 'POST',
+                headers: {
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+                .then(result => {
+                    if (result.ok) {
+                        location.href = '/booking'
+                        return
+                    }
+
+                    if (result.status === 401) {
+                        document.getElementById('message').innerHTML = "Invalid credentials, please enter valid username and password or sign up"
+                        return
+                    }
+                })
+        });
+</script> 
+{% endblock %}

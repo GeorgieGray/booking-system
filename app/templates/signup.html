@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<form id="signup" style="display: flex; flex-direction: column; width: 300px;"> 
+    <label for="first-name">First name</label>
+    <input type="text" name="first-name" /> 
+    <label for="last-name">Last name</label>
+    <input type="text" name="last-name" /> 
+    <label for="email">Email</label>
+    <input type="email" name="email" /> 
+    <label for="password">Password</label>
+    <input type="password" name="password" />
+    <input type="submit" value="Sign up" /> 
+</form>
+{% endblock %}
+
+{% block foot %}
+<script> 
+    document
+        .getElementById("signup")
+        .addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const data = Object.fromEntries(new FormData(e.target).entries())
+
+            fetch('/api/user/register', {
+                method: 'POST',
+                headers: {
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+        });
+</script> 
+{% endblock %}
