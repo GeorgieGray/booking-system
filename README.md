@@ -203,7 +203,7 @@ Here is my regression testing method:
 #### W3C Jigsaw
 There is an error here but it belongs to Bootstrap, so is out of my control. Otherwise good.
 
-![](https://jigsaw.w3.org/css-validator/validator?uri=https%3A%2F%2Fci-booking-system.herokuapp.com%2F&profile=css3svg&usermedium=all&warning=1&vextwarning=&lang=en)
+https://jigsaw.w3.org/css-validator/validator?uri=https%3A%2F%2Fci-booking-system.herokuapp.com%2F&profile=css3svg&usermedium=all&warning=1&vextwarning=&lang=en
 
 #### W3C Markup Validator
 Info + minor warning, otherwise good.
