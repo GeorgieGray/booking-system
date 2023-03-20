@@ -16,7 +16,10 @@ template_folder = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 template_folder = os.path.join(template_folder, 'app')
 template_folder = os.path.join(template_folder, 'templates')
 
-app = Flask(__name__, template_folder=template_folder)
+static_folder = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+static_folder = os.path.join(static_folder, 'static')
+
+app = Flask(__name__, template_folder=template_folder, static_folder=static_folder, static_url_path="/static")
 
 app.config['SECRET_KEY'] = SECRET_KEY
 

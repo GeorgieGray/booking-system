@@ -27,11 +27,6 @@ def login():
       login_user(user, remember=remember)
       return "success", 200
 
-@api.route("/user/logout", methods=['POST'])
-def logout():
-   if request.method == 'POST':
-        return "user logout"
-
 @api.route("/user/register", methods=['POST'])
 def register():
    if request.method == 'POST':
@@ -61,20 +56,10 @@ def register():
          last_name=json['last-name']\
       )
 
+      login_user(user)
+
       response = {
          'user_id': user.id
       }
 
       return jsonify(response), 200
-
-
-@api.route("/user/password", methods=['PUT'])
-def password():
-   if request.method == 'PUT':
-        return "change password"
-
-@api.route("/user/email", methods=['PUT'])
-def email():
-   if request.method == 'PUT':
-        return "change email"
-

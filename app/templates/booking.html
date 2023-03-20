@@ -1,9 +1,265 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container">
+  <div class="row align-items-start g-5">
+    <div class="col-12 col-md-6">
+      <h2>Create a booking</h2>
+      <form id="booking">
+        <div class="mb-3">
+          <label for="booking_day" class="form-label">Date</label>
+          <input type="date" class="form-control" id="booking_day" name="booking_day" required>
+          <div id="dateHelp" class="form-text">The day you'd like to book a table for</div>
+        </div>
+        <div class="mb-3">
+          <label for="group_size" class="form-label">Number of people</label>
+          <input type="range" class="form-range" value="1" id="group_size" name="group_size" min="1" max="8"
+            oninput="this.nextElementSibling.value = this.value">
+          <output>1</output>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+      <div id="times" class="d-none">
+      </div>
+      <div id="complete" class="d-none">
+      </div>
+    </div>
+    <div class="col-12 col-md-6">
+      <h2>Your Bookings</h2>
+      <div id="bookings">
+        {% if bookings|length < 1 %} <p>
+          No bookings to show
+          </p>
+          {% endif %}
+          {%for booking in bookings%}
+          <div class="card mb-3">
+            <h5 class="card-header">Booking: {{ booking.date }} @ {{ booking.time }}:00</h5>
+            <div class="card-body">
+              <h5 class="card-title">Dinner for {{ booking.group_size }}</h5>
+              <p class="card-text">You're booked in for dinner at table {{ booking.table.table_number }}</p>
+              <a href="#" class="btn btn-outline-danger delete-booking" data-id="{{ booking.id }}">Delete</a>
+            </div>
+          </div>
+          {%endfor%}
+      </div>
+    </div>
+  </div>
+</div>
+<h2>
 
-{% if current_user.is_authenticated %}
-  Hi {{ current_user.first_name }}!
-{% endif %}
 
+{% endblock %}
+{% block foot %}
+  <script>
+    const generateBookingList = async () => {
+      const bookingElement = document.getElementById('bookings')
+      const bookings = await fetch('/api/booking').then(response => response.json())
+
+      const elements = bookings.map(booking => createBookingElement(booking))
+      bookingElement.innerHTML = ''
+
+      for (const element of elements) {
+        bookingElement.appendChild(element)
+      }
+
+      if (bookings.length === 0) {
+        const p = document.createElement('p')
+        p.innerText = 'No bookings to show'
+        bookingElement.appendChild(p)
+      }
+    }
+
+    const createBookingElement = (booking) => {
+      const container = document.createElement('div')
+      container.classList.add('card', 'mb-3')
+
+      const h5 = document.createElement('h5')
+      h5.classList.add('card-header')
+      const date = new Date(booking.date).toISOString().substring(0, 10)
+      h5.innerText = `Booking: ${date} @ ${booking.time}:00`
+
+      const body = document.createElement('div')
+      body.classList.add('card-body')
+
+      const title = document.createElement('h5')
+      title.classList.add('card-title')
+      title.innerText = `Dinner for ${booking.group_size}`
+
+      const text = document.createElement('p')
+      text.classList.add('card-text')
+      text.innerText = `You're booked in for dinner at table ${booking.table.table_number}`
+
+      const button = document.createElement('a')
+      button.href = "#"
+      button.classList.add('btn', 'btn-outline-danger', 'delete-booking')
+      button.setAttribute('data-id', booking.id)
+      button.innerText = "Delete"
+      button.onclick = event => {
+        event.preventDefault()
+
+        fetch(`/api/booking/${booking.id}`, { method: 'DELETE' })
+          .then(result => {
+            if (result.ok) {
+              generateBookingList()
+            }
+          })
+      }
+
+      body.appendChild(title)
+      body.appendChild(text)
+      body.appendChild(button)
+
+      container.appendChild(h5)
+      container.appendChild(body)
+
+      return container
+    }
+
+    Array.from(document.querySelectorAll('.delete-booking')).forEach(element => {
+      element.addEventListener('click', event => {
+        event.preventDefault()
+        const id = event.target.getAttribute('data-id')
+
+        fetch(`/api/booking/${id}`, { method: 'DELETE' })
+          .then(result => {
+            if (result.ok) {
+              generateBookingList()
+            }
+          })
+      })
+    })
+  </script>
+  <script>
+    document
+      .getElementById("booking")
+      .addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const bookingData = Object.fromEntries(new FormData(e.target).entries())
+        bookingData.restaurant_id = 2
+
+        fetch('/api/booking/time', {
+          method: 'POST',
+          headers: {
+            "content-type": "application/json"
+          },
+          body: JSON.stringify(bookingData)
+        })
+          .then(async result => {
+            if (!result.ok) return
+
+            const json = await result.json()
+            const bookingContainer = document.getElementById("booking")
+            const timesContainer = document.getElementById("times")
+            const completeContainer = document.getElementById("complete")
+
+            const showBookingContainer = () => {
+              bookingContainer.classList.remove('d-none')
+              timesContainer.classList.add('d-none')
+              timesContainer.innerHTML = ''
+              completeContainer.classList.add('d-none')
+              completeContainer.innerHTML = ''
+
+              document.getElementById("booking").reset()
+            }
+
+            const showTimeContainer = () => {
+              bookingContainer.classList.add('d-none')
+              timesContainer.classList.remove('d-none')
+              completeContainer.classList.add('d-none')
+              completeContainer.innerHTML = ''
+            }
+
+            const showCompleteContainer = () => {
+              bookingContainer.classList.add('d-none')
+              timesContainer.classList.add('d-none')
+              timesContainer.innerHTML = ''
+              completeContainer.classList.remove('d-none')
+            }
+
+            const createMessageView = (message, onclick) => {
+              const h5 = document.createElement("h5")
+              h5.innerText = message
+
+              const button = document.createElement("button")
+              button.innerText = "Start again"
+              button.classList.add("btn", "btn-outline-primary")
+              button.type = "button"
+              button.onclick = onclick
+
+              const container = document.createElement('div')
+              container.appendChild(h5)
+              container.appendChild(button)
+              return container
+            }
+
+            if (json.length === 0) {
+              const message = `Sorry no tables available for ${bookingData.booking_day}`
+              const view = createMessageView(message, showBookingContainer)
+              timesContainer.appendChild(view)
+
+              showTimeContainer()
+              return
+            }
+
+            const container = document.createElement('div')
+            container.classList.add("d-grid", "gap-2")
+
+            const onTimeClick = async (time) => {
+              const payload = {
+                date: bookingData.booking_day,
+                restaurant_id: 2,
+                group_size: bookingData.group_size,
+                time: time
+              }
+
+              Array.from(container.children).forEach(child => {
+                child.disabled = true
+              })
+
+              const result = await fetch("/api/booking", {
+                method: 'POST',
+                headers: {
+                  "content-type": "application/json"
+                },
+                body: JSON.stringify(payload)
+              })
+
+              const message = result.ok
+                ? `Your table is booked for ${bookingData.booking_day} @ ${time}:00`
+                : 'Sorry there was a problem creating your booking :('
+
+              const view = createMessageView(message, showBookingContainer)
+              completeContainer.appendChild(view)
+
+              showCompleteContainer()
+              generateBookingList()
+            }
+
+            const createTime = (time) => {
+              const element = document.createElement('button')
+              element.classList.add("btn", "btn-outline-primary")
+              element.type = "button"
+              element.innerText = `${time}:00`
+              element.onclick = () => onTimeClick(time)
+
+              return element
+            }
+
+            const times = json.map(time => createTime(time))
+
+            const heading = document.createElement('h5')
+            heading.innerText = `Please choose a time for ${bookingData.booking_day}`
+
+            container.appendChild(heading)
+
+            for (const time of times) {
+              container.appendChild(time)
+            }
+
+            timesContainer.appendChild(container)
+            showTimeContainer()
+          })
+      });
+  </script>
 {% endblock %}

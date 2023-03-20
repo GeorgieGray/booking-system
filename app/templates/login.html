@@ -4,16 +4,25 @@
 {% endblock %}
 
 {% block content %}
-<div id="message">
-</div>
-<form id="login" style="display: flex; flex-direction: column; width: 300px;"> 
-    <label for="email">Email</label>
-    <input type="email" name="email" /> 
-    <label for="password">Password</label>
-    <input type="password" name="password" />
-    <label for="remember">Remember</label>
-    <input type="checkbox" name="remember" />
-    <input type="submit" value="Login" /> 
+<form id="login" class="col-lg-6">
+    <h1 class="mb-3">
+        Login
+    </h1>
+    <div class="alert alert-danger d-none" role="alert" id="message">
+    </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">Email address</label>
+      <input type="email" class="form-control" id="email" name="email" required>
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" class="form-control" name="password" id="password" required>
+    </div>
+    <div class="mb-3 form-check">
+      <input type="checkbox" name="remember" class="form-check-input" id="remember">
+      <label class="form-check-label" for="remember">Remember me</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Login</button>
 </form>
 {% endblock %}
 
@@ -40,7 +49,9 @@
                     }
 
                     if (result.status === 401) {
-                        document.getElementById('message').innerHTML = "Invalid credentials, please enter valid username and password or sign up"
+                        const message = document.getElementById('message')
+                        message.innerHTML = "Invalid credentials, please enter valid username and password or sign up"
+                        message.classList.remove('d-none')
                         return
                     }
                 })

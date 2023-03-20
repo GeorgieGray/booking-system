@@ -1,4 +1,5 @@
 from flask import request, jsonify
+from flask_login import login_required, current_user
 import os, sys
 from datetime import datetime
 from .__init__ import api
@@ -10,13 +11,17 @@ from operations.delete_booking import delete_booking
 from operations.view_available_times import view_available_times
 
 @api.route("/booking", methods=['GET', 'POST'])
+@login_required
 def bookings():
     if request.method == 'GET':
-        bookings = view_all_bookings(user_id=1)
+        bookings = view_all_bookings(user_id=current_user.id)
         bookingsArray = []
 
         for booking in bookings:
-            bookingsArray.append(booking.toDict())
+            dict = booking.toDict()
+            dict['table'] = booking.table.toDict()
+            bookingsArray.append(dict)
+
 
         return jsonify(bookingsArray)
 
@@ -42,18 +47,23 @@ def bookings():
             table_id=match["id"],\
             time=data["time"],\
             date=date,\
-            user_id=1,\
-            note=data["note"],\
+            user_id=current_user.id,\
+            note="",\
         )
         return booking.toDict(), 200
 
 @api.route("/booking/<id>", methods=['GET', 'DELETE'])
+@login_required
 def booking(id):
     if request.method == 'GET':
-        booking = view_booking(id=id, user_id=1)
-        return jsonify(booking.toDict()), 200
+        booking = view_booking(id=id, user_id=current_user.id)
+        dict = booking.toDict()
+        dict['table'] = booking.table.toDict()
+        return jsonify(dict), 200
     if request.method == 'DELETE':
-        delete_booking(id=id, user_id=1)
+        success = delete_booking(id=id, user_id=current_user.id)
+        if not success:
+            return "booking delete failed", 400
         return f"booking {id} deleted successfully", 200
 
 
@@ -67,4 +77,5 @@ def time():
             group_size=data["group_size"],\
             booking_day=date\
         )
+
         return jsonify(result["available_times"]), 200

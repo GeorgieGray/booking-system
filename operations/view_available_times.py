@@ -14,14 +14,20 @@ def view_available_times(restaurant_id: int, group_size: int, booking_day: datet
     clean_date = datetime.datetime(year=booking_day.year, month = booking_day.month, day = booking_day.day)
     is_restaurant_closed = session.query(ClosureDay).filter_by(date=clean_date).count() >= 1
     if is_restaurant_closed == True: 
-        return []
+        return {
+            "available_times": [],
+            "available_time_and_table_pairs": []
+        } 
 
 
     day_of_week = booking_day.weekday()
     trading_day = session.query(TradingDay).filter_by(day=day_of_week, restaurant_id=restaurant_id).one()
     is_restaurant_closed = not trading_day.is_open
     if is_restaurant_closed == True: 
-        return []
+        return {
+            "available_times": [],
+            "available_time_and_table_pairs": []
+        } 
 
     possible_tables = session.query(Table).\
         filter_by(restaurant_id=restaurant_id).\

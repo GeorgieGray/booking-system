@@ -6,7 +6,6 @@ auth = Blueprint('auth', __name__)
 @auth.route('/login')
 def login():
     if current_user.is_authenticated:
-        print("already logged in")
         return redirect(url_for("main.booking"))
 
     return render_template("login.html")

@@ -7,4 +7,8 @@ from db import session
 def delete_booking(id: int, user_id: int):
     booking = session.query(Booking).filter_by(id=id,user_id=user_id)
     booking.delete()
+    session.commit()
+
+    if (booking == None):
+        return False
     return True
